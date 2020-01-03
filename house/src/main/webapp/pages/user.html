@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>用户管理</title>
+	<link rel="stylesheet" type="text/css" href="../static/easyUI/themes/default/easyui.css">
+	<link rel="stylesheet" type="text/css" href="../static/easyUI/themes/icon.css">
+	<link rel="stylesheet" type="text/css" href="../static/easyUI/css/demo.css">
+	<script src="../static/js/jquery-1.8.3.js" language="JavaScript" type="text/javascript"></script>
+	<!--jquery.easyui.min.js包含了easyUI中的所有插件-->
+	<script src="../static/js/jquery.easyui.min.js" language="JavaScript" type="text/javascript"></script>
+
+	<script language="JavaScript" type="text/javascript">
+        $(function(){
+            //1.使用datagrid组件绑定数据
+            $('#dg').datagrid({
+                url:'/getUsers',
+                pagination:true,  //开启分页
+                pageSize:5,  //初始化页大小
+                pageList:[3,5,8,10,20],  //页大小选项
+                columns:[[
+                    {checkbox:true,width:100,align:'right'},
+                    {field:'id',title:'编号',width:100,align:'right'},
+                    {field:'name',title:'用户名',width:100,align:'right'},
+                    {field:'telephone',title:'电话号码',width:100,align:'right'},
+                    {field:'isadmin',title:'是否管理员',width:100,align:'right'}
+                ]]
+            });
+        });
+	</script>
+</head>
+<body>
+<div id="ToolBar">
+	<div style="height: 40px;">
+		<a href="javascript:addUser()" class="easyui-linkbutton"
+		   iconCls="icon-add" plain="true">添加</a>
+		<a href="javascript:modifyUser()" class="easyui-linkbutton"
+		   iconCls="icon-edit" plain="true">修改</a>
+		名称:<input type="text" id="name" name="name">电话:<input id="tele" type="text" name="tele">
+		<a id="btn" href="javascript:searchUser();" class="easyui-linkbutton" data-options="iconCls:'icon-search'">搜索</a>
+	</div>
+</div>
+
+<!--添加窗口-->
+<div id="addDialog" class="easyui-dialog" buttons="#AddDialogButtons"
+	 style="width: 280px; height: 250px; padding: 10px 20px;" closed="true"  modal="true">
+	<form id="addUserForm" method="post">
+		<table>
+			<tr>
+				<td>用户名:</td>
+				<td><input type="text" class="easyui-validatebox"
+						   name="name"/></td>
+			</tr>
+			<tr>
+				<td>密码:</td>
+				<td><input type="password" class="easyui-validatebox"
+						   name="password"/></td>
+			</tr>
+			<tr>
+				<td>手机号码:</td>
+				<td><input type="text" class="easyui-validatebox"
+						   name="telephone"/></td>
+			</tr>
+			<tr>
+				<td>是否管理员:</td>
+				<td><input type="text" class="easyui-validatebox"
+						   name="isadmin"/></td>
+			</tr>
+		</table>
+	</form>
+</div>
+<!--添加窗口的按钮-->
+<div id="AddDialogButtons">
+	<a href="javascript:SaveDialog()" class="easyui-linkbutton"
+	   iconCls="icon-ok">保存</a>
+	<a href="javascript:CloseDialog()" class="easyui-linkbutton"
+	   iconCls="icon-cancel">取消</a>
+</div>
+<!--修改窗口-->
+<div id="updateDialog" class="easyui-dialog" buttons="#updateDialogButtons"
+	 style="width: 280px; height: 250px; padding: 10px 20px;" closed="true"  modal="true">
+	<form id="updateDialogForm" method="post">
+		<table>
+			<tr>
+				<td>
+					<input type="hidden" class="easyui-validatebox"
+						   name="id"/>
+				</td>
+			</tr>
+			<tr>
+				<td>用户名:</td>
+				<td><input type="text" class="easyui-validatebox"
+						   name="name"/></td>
+			</tr>
+			<tr>
+				<td>密码:</td>
+				<td><input type="password" class="easyui-validatebox"
+						   name="password"/></td>
+			</tr>
+			<tr>
+				<td>手机号码:</td>
+				<td><input type="text" class="easyui-validatebox"
+						   name="telephone"/></td>
+			</tr>
+			<tr>
+				<td>是否管理员:</td>
+				<td><input type="text" class="easyui-validatebox"
+						   name="isadmin"/></td>
+			</tr>
+		</table>
+	</form>
+</div>
+<!--修改窗口的按钮-->
+<div id="updateDialogButtons">
+	<a href="javascript:updateDialog()" class="easyui-linkbutton"
+	   iconCls="icon-ok">保存</a>
+	<a href="javascript:CloseDialog()" class="easyui-linkbutton"
+	   iconCls="icon-cancel">取消</a>
+</div>
+
+<table id="dg"></table>
+
+</body>
+<script>
+    $('#dg').datagrid({
+        toolbar:'#ToolBar' //指定工具栏
+    });
+
+    function addUser(){
+        //打开对话框
+        $("#addDialog").dialog("open").dialog('setTitle',"添加用户");
+    }
+
+    function searchUser() {
+		$("#dg").datagrid("load",{name:$("#name").val(),tele:$("#tele").val()})
+    }
+
+    function SaveDialog() {
+		$("#addUserForm").form("submit",{
+		    url:"/addUser",
+			success:function (data) {
+				var obj = $.parseJSON(data);
+				if (obj.result>=0) {
+				    $("#addUserForm").form("reset");
+				    $("#addDialog").dialog("close");
+				    $("#dg").datagrid("load");
+				} else {
+				    $.messager.alert("温馨提示","添加失败！","info");
+				}
+            }
+		})
+    }
+
+    function CloseDialog() {
+		$("#addDialog").dialog("close");
+        $("#updateDialog").dialog("close");
+    }
+
+    //显示信息到修改框中
+    function modifyUser() {
+		var user = $("#dg").datagrid("getSelections");
+		if (user.length==1) {
+		    $("#updateDialog").dialog("open").dialog("setTitle","修改用户信息");
+		    $("#updateDialogForm").form("load",user[0]);
+		} else {
+		    $.messager.alert("温馨提示","请只选择一个用户！","info")
+		}
+    }
+
+    function updateDialog() {
+		$("#updateDialogForm").form("submit",{
+		    url:"/updateUser",
+		    success:function (data) {
+                var obj = $.parseJSON(data);
+                if (obj.result>=0) {
+                    $("#updateDialog").dialog("close");
+                    $("#dg").datagrid("load");
+                } else {
+                    $.messager.alert("温馨提示","修改失败！","info");
+                }
+            }
+		})
+    }
+
+</script>
+</html>
