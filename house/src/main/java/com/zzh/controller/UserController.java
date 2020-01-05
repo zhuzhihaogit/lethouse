@@ -6,6 +6,7 @@ import com.zzh.domain.District;
 import com.zzh.domain.User;
 import com.zzh.service.DistrictService;
 import com.zzh.service.UserService;
+import com.zzh.util.TeleCheckUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -82,6 +83,24 @@ public class UserController {
         }
 
         return map;
+    }
+
+
+
+    //获取验证码
+    @RequestMapping("/getCode")
+    public String getCode(String tel, HttpSession session){
+        Integer checkCode = (int)Math.round((Math.random()+1) * 1000);
+
+        int i = TeleCheckUtil.sendMsg(tel, checkCode.toString());
+
+        System.out.println(i);
+
+        User user = userService.findUserByTel(tel);
+
+        session.setAttribute("user",user);
+
+        return checkCode.toString();
     }
 
 }

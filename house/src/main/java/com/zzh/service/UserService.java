@@ -22,4 +22,6 @@ public interface UserService {
 
     List<User> login(String username,String password);
 
+    User findUserByTel(String tel);
+
 }

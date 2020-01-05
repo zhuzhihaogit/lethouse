@@ -101,4 +101,9 @@ public class UserServiceImpl implements UserService{
 
         return userList;
     }
+
+    @Override
+    public User findUserByTel(String tel) {
+        return userMapper.selectUserByTel(tel);
+    }
 }

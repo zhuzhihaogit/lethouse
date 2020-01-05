@@ -134,4 +134,8 @@
       ISADMIN = #{isadmin,jdbcType=INTEGER}
     where ID = #{id,jdbcType=INTEGER}
   </update>
+
+  <select id="selectUserByTel" parameterType="String" resultType="User">
+    select * from users where  TELEPHONE = #{tel}
+  </select>
 </mapper>
